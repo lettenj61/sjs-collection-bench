@@ -19,7 +19,7 @@ object Comparisons {
 
       Benchmark("js.Array pre-allocated"){
         val ary = new js.Array[T](4096)
-        for (_ <- 0 until 4096) ary.push(newly())
+        for (i <- 0 until 4096) ary(i) = newly()
         ary
       }
     )
