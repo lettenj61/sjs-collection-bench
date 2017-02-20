@@ -1,6 +1,8 @@
 package bench.sjs
 
 import scala.collection._
+import immutable.{ Queue, Stack }
+
 import scala.scalajs.js
 import js.annotation._
 
@@ -14,11 +16,14 @@ object Memsize {
       "vectors" -> vectors,
       "unforcedStreams" -> unforcedStreams,
       "forcedStreams" -> forcedStreams,
+      "sets" -> sets,
+      "maps" -> maps,
       "javaArrays" -> javaArrays,
       "jsArrays" -> jsArrays
     )
   }
 
+  val Sizes = Seq(0, 1, 2, 4, 16, 64, 256, 1024, 4096, 16192)
   def elem() = js.Dynamic.literal().asInstanceOf[js.Object]
 
   def samples[T](f: Int => T): js.Dictionary[Any] = {
@@ -26,16 +31,19 @@ object Memsize {
     for (i <- Sizes) d.update(i.toString, f(i))
     d
   }
+  def iter(size: Int) = Iterator.fill[js.Object](size)(elem())
 
-  def Sizes = Seq(0, 1, 2, 4, 16, 64, 256, 1024, 4096, 16192)
-
-  def lists = samples(i => List.fill(i)(elem()))
-  def vectors = samples(i => Vector.fill(i)(elem()))
-  def unforcedStreams = samples(i => Stream.fill(i)(elem()))
+  def lists = samples(i => iter(i).toList)
+  def vectors = samples(i => iter(i).toVector)
+  def unforcedStreams = samples(i => iter(i).toStream)
   def forcedStreams = samples({ i =>
-    val s = Iterator.fill(i)(elem()).toStream
+    val s = iter(i).toStream
     s foreach (_ => ())
     s
+  })
+  def sets = samples(i => iter(i).toSet)
+  def maps = samples({ i =>
+    Iterator.fill(i)(elem(), elem()).toMap
   })
 
   def javaArrays = samples({ i =>
