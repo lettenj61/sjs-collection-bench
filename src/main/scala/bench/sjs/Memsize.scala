@@ -28,7 +28,7 @@ object Memsize {
 
   @JSExport
   val jsArrays = samples({ i =>
-    val xs = new js.Array[js.Object](i)
+    val xs = new js.Array[js.Object]()
     for (_ <- 0 until i) xs.push(elem())
     xs
   })
